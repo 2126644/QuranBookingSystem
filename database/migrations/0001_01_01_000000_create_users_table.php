@@ -17,8 +17,8 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('gender'); // Add gender field
-            $table->integer('age'); // Add age field
+            $table->string('gender')->nullable();; // Add gender field
+            $table->integer('age')->nullable();; // Add age field
             $table->rememberToken();
             $table->foreignId('current_team_id')->nullable();
             $table->string('profile_photo_path', 2048)->nullable();
