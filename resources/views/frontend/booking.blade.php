@@ -129,11 +129,14 @@ Bootstrap 5 HTML CSS Template
                                                 <div class="booking-form-body">
                                                     <div class="row">
                                                         <div class="col-lg-6 col-12">
-                                                            <input type="text" name="booking-form-name" id="booking-form-name" class="form-control" placeholder="Full Name" required>
+                                                            <input type="text" name="booking-form-name" id="booking-form-name" class="form-control" placeholder="Full Name"
+                                                            oninput="this.value = this.value.replace(/[^a-zA-Z\s']/g, '')" class="w-full p-2 border border-gray-300 rounded" required>
                                                         </div>
+
                                                         <div class="col-lg-6 col-12">
                                                             <input type="email" class="form-control" name="booking-form-email" placeholder="Email" required>
                                                         </div>
+
                                                         <div class="col-lg-12 col-12">
                                                             <input type="tel" class="form-control" name="booking-form-phone" placeholder="Phone" required>
                                                         </div>
@@ -141,13 +144,14 @@ Bootstrap 5 HTML CSS Template
                                                         <div class="col-lg-6 col-12">
                                                             <select name="session-day" id="session-day" class="form-control" required>
                                                                 <option value="" disabled selected>Day</option>
-                                                                <option value="monday">Monday</option>
-                                                                <option value="tuesday">Tuesday</option>
-                                                                <option value="wednesday">Wednesday</option>
-                                                                <option value="thursday">Thursday</option>
-                                                                <option value="friday">Friday</option>
+                                                                <option value="Monday">Monday</option>
+                                                                <option value="Tuesday">Tuesday</option>
+                                                                <option value="Wednesday">Wednesday</option>
+                                                                <option value="Thursday">Thursday</option>
+                                                                <option value="Friday">Friday</option>
                                                             </select>
                                                         </div>
+
                                                         <div class="col-lg-6 col-12">
                                                             <select name="session-time" id="session-time" class="form-control" required>
                                                                 <option value="" disabled selected>Time / Tutor</option>
@@ -191,7 +195,8 @@ Bootstrap 5 HTML CSS Template
                                                                 </select>
                                                             </div>
 
-                                                            <textarea name="booking-form-message" rows="3" class="form-control" id="booking-form-message" placeholder="Additional Information (Optional)"></textarea>
+                                                            <textarea name="booking-form-message" rows="3" class="form-control" id="booking-form-message" placeholder="Additional Information (Optional)"
+                                                            oninput="this.value = this.value.replace(/[^a-zA-Z0-9\s.,!?'\&quot;-]/g, '')"></textarea>
                                                         </div>
 
                                                         <div class="col-lg-4 col-md-10 col-8 mx-auto mt-2">
@@ -214,7 +219,6 @@ Bootstrap 5 HTML CSS Template
                         </div>
                     </div>
                 </section>
-
 
                                     <div class="col-lg-5 col-12 p-0">
                                         <div class="booking-form-image-wrap">

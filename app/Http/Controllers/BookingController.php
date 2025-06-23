@@ -35,18 +35,16 @@ class BookingController extends Controller
 {
     // Validate the incoming request data
     $request->validate([
-        'booking-form-name' => 'required|string|max:255',
-        'booking-form-email' => 'required|string|max:50',
-        'booking-form-phone' => 'required|string|max:20',
-        'session-day' => 'required|in:monday,tuesday,wednesday,thursday,friday',
-        'session-time' => 'required|in:9am - 10am with Ustaz Muazzam,2pm - 3pm with Ustazah Hanum,5pm - 6pm with Ustaz Zaid Muhammad,8pm - 9pm with Ustazah Ain Lily',
-        'class-type' => 'required|in:iqra,quran',
-        'session-type' => 'required|in:online,in-person',
-        'study-level' => 'required|in:beginner,intermediate,advanced',
-        'booking-form-message' => 'nullable|string|max:1000',
+        'booking-form-name' => ['required','regex:/^[a-zA-Z\s\'-]+$/', 'max:255'], //Full Name
+        'booking-form-email' => ['required', 'email', 'max:50'], //Email
+        'booking-form-phone' => ['required', 'regex:/^01[0-9]-?[0-9]{7,8}$/'], //Phone
+        'session-day' => ['required', 'in:Monday, Tuesday, Wednesday, Thursday, Friday'], //Day
+        'session-time' => ['required', 'in:9am - 10am with Ustaz Muazzam, 2pm - 3pm with Ustazah Hanum, 5pm - 6pm with Ustaz Zaid Muhammad, 8pm - 9pm with Ustazah Ain Lily'], //Time/Tutor
+        'class-type' => ['required', 'in:Iqra, Quran'], //Class Type
+        'session-type' => ['required', 'in:Online, In-Person'], //Session Platform
+        'study-level' => ['required', 'in:Beginner, Intermediate, Advanced'], //Level of Study
+        'booking-form-message' => ['nullable', 'regex:/^[a-zA-Z0-9\s.,!?\'"-]*$/', 'max:1000'], //Additional Info
     ]);
-
-
 
     // Create a new booking instance and save to the database
     $booking = new Booking();

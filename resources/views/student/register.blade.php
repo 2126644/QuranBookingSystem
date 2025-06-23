@@ -25,29 +25,37 @@
                 </ul>
             </div>
         @endif
+
         <form action="{{ route('student.register') }}" method="POST">
             @csrf
             <div class="mb-4">
                 <label for="name" class="block text-gray-700">Name:</label>
-                <input type="text" id="name" name="name" value="{{ old('name') }}" required class="w-full p-2 border border-gray-300 rounded">
+                <input type="text" id="name" name="name" value="{{ old('name') }}" required class="w-full p-2 border border-gray-300 rounded"
+                oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, '')">
+                <small class="text-sm text-gray-500">Only letters and spaces are allowed.</small>
             </div>
+
             <div class="mb-4">
                 <label for="email" class="block text-gray-700">Email:</label>
                 <input type="email" id="email" name="email" value="{{ old('email') }}" required class="w-full p-2 border border-gray-300 rounded">
+                <small class="text-sm text-gray-500">Please enter a valid email (e.g., name@example.com)</small>
             </div>
+
             <div class="mb-4">
                 <label for="password" class="block text-gray-700">Password:</label>
                 <input type="password" id="password" name="password" required class="w-full p-2 border border-gray-300 rounded">
-            </div>
+            <small class="text-sm text-gray-500">Minimum 8 characters required.</small>            </div>
+
             <div class="mb-4">
                 <label for="password_confirmation" class="block text-gray-700">Confirm Password:</label>
                 <input type="password" id="password_confirmation" name="password_confirmation" required class="w-full p-2 border border-gray-300 rounded">
             </div>
+
             <div class="mb-4">
                 <label for="gender" class="block text-gray-700">Gender:</label>
                 <select id="gender" name="gender" required class="w-full p-2 border border-gray-300 rounded">
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
                 </select>
             </div>
             <div class="mb-6">

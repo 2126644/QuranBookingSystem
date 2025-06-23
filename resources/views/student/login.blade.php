@@ -20,13 +20,22 @@
             @csrf
             <div class="mb-4">
                 <label for="email" class="block text-gray-700">Email:</label>
-                <input type="email" id="email" name="email" required class="w-full p-2 border border-gray-300 rounded">
+                <input type="email" id="email" name="email" value="{{ old('email') }}" required class="w-full p-2 border border-gray-300 rounded">
             </div>
             <div class="mb-6">
                 <label for="password" class="block text-gray-700">Password:</label>
                 <input type="password" id="password" name="password" required class="w-full p-2 border border-gray-300 rounded">
             </div>
             <button type="submit" class="w-full bg-red-600 text-white p-2 rounded hover:bg-red-700">Login</button>
+
+            @if ($errors->any())
+                <div class="text-red-600 mt-3 text-sm">
+                    @foreach ($errors->all() as $error)
+                        <div>{{ $error }}</div>
+                    @endforeach
+                </div>
+            @endif
+
         </form>
         <div class="mt-4 text-center">
             <a href="{{ url('/') }}" class="text-red-600 hover:underline">Back to Home</a>
