@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class BookingTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
@@ -14,17 +14,17 @@ class BookingTable extends Migration
     public function up():void
     {
         Schema::create('bookings', function (Blueprint $table) {
-            $table->id();
-            $table->string('full_name');
-            $table->string('email');
-            $table->string('phone');
-            $table->enum('session_day', ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']);
+            $table->bigIncrements('booking_id');
+            $table->unsignedBigInteger('user_id');
+            $table->enum('session_day', ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']);
             $table->enum('session_time', ['9am - 10am with Ustaz Muazzam','2pm - 3pm with Ustazah Hanum','5pm - 6pm with Ustaz Zaid Muhammad','8pm - 9pm with Ustazah Ain Lily']);
-            $table->enum('class_type', ['iqra', 'quran']);
-            $table->enum('session_type', ['online', 'in-person']);
-            $table->enum('study_level', ['beginner', 'intermediate', 'advanced']);
+            $table->enum('class_type', ['Iqra', 'Al-Quran']);
+            $table->enum('session_type', ['Online', 'In-Person']);
+            $table->enum('study_level', ['Beginner', 'Intermediate', 'Advanced']);
             $table->text('additional_info')->nullable();
             $table->timestamps();
+
+            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
         });
     }
 

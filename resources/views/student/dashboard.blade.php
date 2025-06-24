@@ -35,6 +35,7 @@
                             <h4 class="text-lg font-medium leading-6 text-gray-900 mb-4">Student Information</h4>
                             <p><strong>Name:</strong> {{ Auth::user()->name }}</p>
                             <p><strong>Email:</strong> {{ Auth::user()->email }}</p>
+                            <p><strong>Phone Number:</strong> {{ Auth::user()->phone }}</p>
                             <p><strong>Gender:</strong> {{ Auth::user()->gender }}</p>
                             <p><strong>Age:</strong> {{ Auth::user()->age }}</p>
                         </div>
@@ -54,7 +55,7 @@
                                 <table class="min-w-full bg-white">
                                     <thead class="bg-gray-800 text-white">
                                         <tr>
-                                            <th class="w-1/4 py-2">Full Name</th>
+                                            <th class="w-1/4 py-2">Name</th>
                                             <th class="w-1/4 py-2">Email</th>
                                             <th class="w-1/4 py-2">Phone</th>
                                             <th class="w-1/4 py-2">Session Day</th>
@@ -63,15 +64,15 @@
                                             <th class="w-1/4 py-2">Session Type</th>
                                             <th class="w-1/4 py-2">Study Level</th>
                                             <th class="w-1/4 py-2">Additional Info</th>
-                                            <th class="w-1/4 py-2">Operations</th>
+                                            <th class="w-1/4 py-2">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach ($bookings as $booking)
                                             <tr class="bg-gray-100">
-                                                <td class="border px-4 py-2">{{ $booking->full_name }}</td>
-                                                <td class="border px-4 py-2">{{ $booking->email }}</td>
-                                                <td class="border px-4 py-2">{{ $booking->phone }}</td>
+                                                <td class="border px-4 py-2">{{ $booking->user->name ?? 'N/A' }}</td>
+                                                <td class="border px-4 py-2">{{ $booking->user->email ?? 'N/A' }}</td>
+                                                <td class="border px-4 py-2">{{ $booking->user->phone ?? 'N/A' }}</td>
                                                 <td class="border px-4 py-2">{{ $booking->session_day }}</td>
                                                 <td class="border px-4 py-2">{{ $booking->session_time }}</td>
                                                 <td class="border px-4 py-2">{{ $booking->class_type }}</td>
@@ -79,11 +80,11 @@
                                                 <td class="border px-4 py-2">{{ $booking->study_level }}</td>
                                                 <td class="border px-4 py-2">{{ $booking->additional_info }}</td>
                                                 <td class="border px-4 py-2">
-                                                <form action="{{ route('classes.destroy', $booking->id) }}" method="POST">
+                                                <form action="{{ route('booking.destroy', $booking->booking_id) }}" method="POST">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="bg-red-600 text-white p-2 rounded hover:bg-red-700" action="{{ route('classes.destroy', $booking->id) }}" method="POST">Drop</button>
-                                                </form>
+                                                    <button type="submit" class="bg-red-600 text-white p-2 rounded hover:bg-red-700" action="{{ route('booking.destroy', $booking->booking_id) }}" method="POST">Drop</button>
+                                                </form>
                                             </tr>
                                         @endforeach
                                     </tbody>

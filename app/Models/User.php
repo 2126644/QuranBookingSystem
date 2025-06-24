@@ -9,6 +9,8 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class User extends Authenticatable
 {
@@ -18,6 +20,10 @@ class User extends Authenticatable
     use Notifiable;
     use TwoFactorAuthenticatable;
 
+    protected $primaryKey = 'user_id';
+    public $incrementing = true;
+    protected $keyType = 'int';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -25,7 +31,9 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'phone',
         'email',
+        'salt',
         'password',
         'gender',
         'age',
@@ -41,6 +49,8 @@ class User extends Authenticatable
         'remember_token',
         'two_factor_recovery_codes',
         'two_factor_secret',
+        'two_factor_code',
+        'two_factor_expires_at',
     ];
 
     /**
@@ -63,5 +73,21 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * A user belongs to one role
+     */
+    public function role(): BelongsTo   // role() for singular @ for belongsTo (single role)
+    {
+        return $this->belongsTo(Role::class, 'role_id', 'role_id');
+    }
+
+    /**
+     * A user can have many bookings
+     */
+    public function bookings(): HasMany
+    {
+        return $this->hasMany(Booking::class, 'user_id', 'user_id');
     }
 }

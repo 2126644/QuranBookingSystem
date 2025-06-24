@@ -3,16 +3,15 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StudentAuthController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\AdminController;
 use App\Models\Booking;
 use Illuminate\Support\Facades\Auth;
-
+use App\Http\Controllers\TwoFactorController;
 
 // Set the default route to redirect to frontend.home
 Route::get('/', function () {
     return redirect()->route('frontend.home');
 });
-//Route bookings input from BookingController
-Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
 
 // web.php
 Route::get('/', function () {
@@ -28,13 +27,14 @@ Route::get('/booking', function () {
     return view('frontend.bview');
 })->name('frontend.bview');
 
+// Two-Factor Routes
+//Show 2FA challenge page
+Route::get('/two-factor-challenge', [TwoFactorController::class, 'index'])->name('two-factor.login');
+//Handle submitted code
+Route::post('/two-factor-challenge', [TwoFactorController::class, 'store'])->name('two-factor.store');
+
 // routes add class button to booking view
 Route::get('/add-class', [BookingController::class, 'showAddClassForm'])->name('frontend.bview');
-// routes to drop class
-Route::delete('/classes/{id}', [BookingController::class, 'destroy'])->name('classes.destroy');
-//Route::delete('/classes/{id}', [BookingController::class, 'destroy'])->name('classes.destroy');
-//Route::get('/frontend/bview', [FrontendController::class, 'bview'])->name('frontend.bview');
-
 
 // Custom student authentication routes
 Route::get('student/register', [StudentAuthController::class, 'showRegistrationForm'])->name('student.register');
@@ -43,17 +43,16 @@ Route::get('student/login', [StudentAuthController::class, 'showLoginForm'])->na
 Route::post('student/login', [StudentAuthController::class, 'login']);
 Route::post('student/logout', [StudentAuthController::class, 'logout'])->name('student.logout');
 
-// Middleware group for authenticated routes
-Route::middleware(['auth:sanctum', 'verified'])->group(function () {
-    Route::get('/dashboard', function () {
-        // Fetch bookings of the authenticated user
-        $bookings = Booking::where('email', Auth::user()->email)->get();
-
-        // Pass the bookings to the dashboard view
-        return view('dashboard', ['bookings' => $bookings]);
-    })->name('dashboard');
+Route::middleware(['auth'])->group(function () {
+    Route::get('/dashboard', [BookingController::class, 'index'])->name('student.dashboard');
+    Route::get('/bookings/create', [BookingController::class, 'create'])->name('booking.create');
+    Route::post('/bookings', [BookingController::class, 'store'])->name('booking.store');
+    Route::delete('/bookings/{booking}', [BookingController::class, 'destroy'])->name('booking.destroy');
 });
 
-
-//Route::get('/bookings', [BookingController::class,'index']);
-//Route::resource('bookings.store', BookingController::class);
+Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
+    Route::get('dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::patch('users/{user}/toggle', [AdminController::class, 'toggleUser'])->name('users.toggle');
+    Route::get('users/{user}/bookings', [AdminController::class, 'userBookings'])->name('bookings');
+    Route::delete('users/{user}', [AdminController::class, 'destroyUser'])->name('users.destroy');
+});

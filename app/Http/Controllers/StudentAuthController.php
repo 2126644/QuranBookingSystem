@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\TwoFactorCodeMail;
+use Illuminate\Validation\Rules\Password;
+
 
 class StudentAuthController extends Controller
 {
@@ -21,15 +25,24 @@ class StudentAuthController extends Controller
         $request->validate([
             'name' => ['required', 'regex:/^[a-zA-Z\s]+$/', 'max:255'],
             'email' => ['required', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'string', Password::min(8)
+                    ->mixedCase()
+                    ->letters()
+                    ->numbers()
+                    ->symbols()
+                    ->uncompromised(),
+                'confirmed'],
             'gender' => ['required', 'string'],
             'age' => ['required','integer', 'min:1', 'max:100'],
         ]);
 
+        $salt = Str::random(16); 
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'salt' => $salt,
+            'password' => Hash::make($request->password . $salt),   //append the salt to the password before hashing in registration
             'gender' => $request->gender,
             'age' => $request->age,
         ]);
@@ -59,7 +72,7 @@ class StudentAuthController extends Controller
     $maxAttempts = 3;
     $lockoutSeconds = 60;
 
-    // If locked out
+    // Check if user is locked out
     if (cache()->has($lockoutKey)) {
         $remaining = cache()->get($lockoutKey) - time();
         if ($remaining > 0) {
@@ -72,29 +85,47 @@ class StudentAuthController extends Controller
         }
     }
 
-    // Login success
-    if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-        cache()->forget($attemptKey);
-        cache()->forget($lockoutKey);
-        return redirect()->intended('dashboard');
-    }
+    $user = User::where('email', $request->email)->first();
 
-    // Failed login
-    $attempts = cache()->get($attemptKey, 0) + 1;
-    cache()->put($attemptKey, $attempts, $lockoutSeconds);
+    // Validate user existence and password
+    if (!$user || !Hash::check($request->password . $user->salt, $user->password)) { //appending the stored salt before checking
+        // Failed login attempt
+        $attempts = cache()->get($attemptKey, 0) + 1;
+        cache()->put($attemptKey, $attempts, $lockoutSeconds);
 
-    if ($attempts >= $maxAttempts) {
-        $lockUntil = time() + $lockoutSeconds;
-        cache()->put($lockoutKey, $lockUntil, $lockoutSeconds);
+        if ($attempts >= $maxAttempts) {
+            $lockUntil = time() + $lockoutSeconds;
+            cache()->put($lockoutKey, $lockUntil, $lockoutSeconds);
+            return back()->withErrors([
+                'email' => "Too many login attempts. Please try again in {$lockoutSeconds} seconds.",
+            ]);
+        }
+
         return back()->withErrors([
-            'email' => "Too many login attempts. Please try again in {$lockoutSeconds} seconds.",
+            'email' => "Invalid credentials. You have " . ($maxAttempts - $attempts) . " attempt(s) left.",
         ]);
     }
 
-    return back()->withErrors([
-        'email' => "Invalid credentials. You have " . ($maxAttempts - $attempts) . " attempt(s) left.",
-    ]);
-    }
+    // Passed password check: reset attempts
+    cache()->forget($attemptKey);
+    cache()->forget($lockoutKey);
+
+    Auth::login($user);
+
+    // Generate 2FA code and expiry
+    $user->two_factor_code = rand(100000, 999999);
+    $user->two_factor_expires_at = now()->addMinutes(10);
+    $user->save();
+
+    // Send 2FA code email
+    Mail::to($user->email)->send(new TwoFactorCodeMail($user));
+
+    // Store user ID in session for 2FA
+    $request->session()->put('login.id', $user->user_id);
+
+    // Redirect to 2FA challenge page
+    return redirect()->route('two-factor.login');
+}
 
     public function logout(Request $request)
     {
