@@ -35,7 +35,7 @@
                     @endforeach
                 </div>
             @endif
-
+            
         </form>
         <div class="mt-4 text-center">
             <a href="{{ url('/') }}" class="text-red-600 hover:underline">Back to Home</a>
