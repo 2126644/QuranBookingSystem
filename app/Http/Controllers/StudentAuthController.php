@@ -110,8 +110,6 @@ class StudentAuthController extends Controller
     cache()->forget($attemptKey);
     cache()->forget($lockoutKey);
 
-    Auth::login($user);
-
     // Generate 2FA code and expiry
     $user->two_factor_code = rand(100000, 999999);
     $user->two_factor_expires_at = now()->addMinutes(10);

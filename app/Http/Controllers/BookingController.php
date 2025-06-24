@@ -22,16 +22,11 @@ class BookingController extends Controller
         });
     }
 
-    public function showAddClassForm()
-    {
-        return view('frontend.bview');
-    }
-
     public function index()
     {
         $userId = Auth::user()->id;
         $bookings = Booking::where(['user_id' => $userId])->get();
-        return view('dashboard', ['bookings' => $bookings]);
+        return view('student.dashboard', ['bookings' => $bookings]);
     }
 
     /**

@@ -33,9 +33,6 @@ Route::get('/two-factor-challenge', [TwoFactorController::class, 'index'])->name
 //Handle submitted code
 Route::post('/two-factor-challenge', [TwoFactorController::class, 'store'])->name('two-factor.store');
 
-// routes add class button to booking view
-Route::get('/add-class', [BookingController::class, 'showAddClassForm'])->name('frontend.bview');
-
 // Custom student authentication routes
 Route::get('student/register', [StudentAuthController::class, 'showRegistrationForm'])->name('student.register');
 Route::post('student/register', [StudentAuthController::class, 'register']);
@@ -45,7 +42,7 @@ Route::post('student/logout', [StudentAuthController::class, 'logout'])->name('s
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [BookingController::class, 'index'])->name('student.dashboard');
-    Route::get('/bookings/create', [BookingController::class, 'create'])->name('booking.create');
+    Route::get('/bookings/create', [BookingController::class, 'create'])->name('booking.add');
     Route::post('/bookings', [BookingController::class, 'store'])->name('booking.store');
     Route::delete('/bookings/{booking}', [BookingController::class, 'destroy'])->name('booking.destroy');
 });

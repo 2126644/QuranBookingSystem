@@ -76,7 +76,7 @@ Bootstrap 5 HTML CSS Template
                                 @if (Route::has('student.login'))
                                     <nav class="nav-item">
                                         @auth
-                                            <a href="{{ url('/dashboard') }}" class="nav-link">
+                                            <a href="{{ route('student.dashboard') }}" class="nav-link">
                                                 Dashboard
                                             </a>
                                         @else
@@ -96,7 +96,7 @@ Bootstrap 5 HTML CSS Template
                             </ul>
 
                             <div class="ms-lg-3">
-                                <a class="btn custom-btn custom-border-btn" href="{{ route('frontend.bview') }}">
+                                <a class="btn custom-btn custom-border-btn" href="{{ route('booking.add') }}">
                                     Book Now
                                     <i class="bi-arrow-up-right ms-2"></i>
                                 </a>
