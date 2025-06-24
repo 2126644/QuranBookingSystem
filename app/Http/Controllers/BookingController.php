@@ -24,7 +24,7 @@ class BookingController extends Controller
 
     public function index()
     {
-        $userId = Auth::user()->id;
+        $userId = Auth::user()->user_id;
         $bookings = Booking::where(['user_id' => $userId])->get();
         return view('student.dashboard', ['bookings' => $bookings]);
     }
@@ -44,11 +44,11 @@ class BookingController extends Controller
 {
     // Validate the incoming request data
     $request->validate([
-        'session_day' => ['required', 'in:Monday, Tuesday, Wednesday, Thursday, Friday'], //Day
-        'session_time' => ['required', 'in:9am - 10am with Ustaz Muazzam, 2pm - 3pm with Ustazah Hanum, 5pm - 6pm with Ustaz Zaid Muhammad, 8pm - 9pm with Ustazah Ain Lily'], //Time/Tutor
-        'class_type' => ['required', 'in:Iqra, Al-Quran'], //Class Type
-        'session_type' => ['required', 'in:Online, In-Person'], //Session Platform
-        'study_level' => ['required', 'in:Beginner, Intermediate, Advanced'], //Level of Study
+        'session_day' => ['required', 'in:Monday,Tuesday,Wednesday,Thursday,Friday'], //Day
+        'session_time' => ['required', 'in:9am - 10am with Ustaz Muazzam,2pm - 3pm with Ustazah Hanum,5pm - 6pm with Ustaz Zaid Muhammad,8pm - 9pm with Ustazah Ain Lily'], //Time/Tutor
+        'class_type' => ['required', 'in:Iqra,Al-Quran'], //Class Type
+        'session_type' => ['required', 'in:Online,In-Person'], //Session Platform
+        'study_level' => ['required', 'in:Beginner,Intermediate,Advanced'], //Level of Study
         'additional_info' => ['nullable', 'regex:/^[a-zA-Z0-9\s.,!?\'"-]*$/', 'max:1000'], //Additional Info
     ]);
 

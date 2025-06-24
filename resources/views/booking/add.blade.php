@@ -102,7 +102,7 @@ Bootstrap 5 HTML CSS Template
                             </ul>
 
                             <div class="ms-lg-3">
-                                <a class="btn custom-btn custom-border-btn" href="{{ route('booking.add') }}">
+                                <a class="btn custom-btn custom-border-btn" href="{{ route('booking.create') }}">
                                     Book Now
                                     <i class="bi-arrow-up-right ms-2"></i>
                                 </a>

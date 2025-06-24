@@ -24,24 +24,27 @@ class AdminController extends Controller
         return view('admin.dashboard', compact('users'));
     }
 
-    public function toggleUser(User $user)
+    public function toggleUser($user_id)
     {
         $this->ensureIsAdmin();
+        $user = User::where('user_id', $user_id)->firstOrFail();
         $user->status = ! $user->status;
         $user->save();
         return back();
     }
 
-    public function userBookings(User $user)
+    public function userBookings($user_id)
     {
         $this->ensureIsAdmin();
-        $todos = $user->bookings;
+        $user = User::where('user_id', $user_id)->firstOrFail();
+        $bookings = $user->bookings;
         return view('admin.bookings', compact('user', 'bookings'));
     }
 
-    public function destroyUser(User $user)
+    public function destroyUser($user_id)
     {
         $this->ensureIsAdmin();
+        $user = User::where('user_id', $user_id)->firstOrFail();
         $user->delete();
         return back()->with('status', 'User deleted.');
     }

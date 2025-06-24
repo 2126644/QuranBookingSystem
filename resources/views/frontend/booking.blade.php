@@ -102,7 +102,7 @@ Bootstrap 5 HTML CSS Template
                             </ul>
 
                             <div class="ms-lg-3">
-                                <a class="btn custom-btn custom-border-btn" href="{{ route('booking.add') }}">
+                                <a class="btn custom-btn custom-border-btn" href="{{ route('booking.create') }}">
                                     Book Now
                                     <i class="bi-arrow-up-right ms-2"></i>
                                 </a>
@@ -119,7 +119,7 @@ Bootstrap 5 HTML CSS Template
                                 <div class="booking-form-wrap">
                                     <div class="row">
                                         <div class="col-lg-7 col-12 p-0">
-                                            <form class="custom-form booking-form" action="{{ route('bookings.store') }}" method="post" role="form">
+                                            <form class="custom-form booking-form" action="{{ route('booking.store') }}" method="post" role="form">
                                                 @csrf
                                                 <div class="text-center mb-4 pb-lg-2">
                                                     <em class="text-white">Fill out the booking form</em>

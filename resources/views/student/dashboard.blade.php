@@ -32,7 +32,7 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="bg-white p-6 rounded-lg shadow-md">
-                            <h4 class="text-lg font-medium leading-6 text-gray-900 mb-4">Student Information</h4>
+                            <h4 class="text-lg font-medium leading-6 text-gray-900 mb-4">User Information</h4>
                             <p><strong>Name:</strong> {{ Auth::user()->name }}</p>
                             <p><strong>Email:</strong> {{ Auth::user()->email }}</p>
                             <p><strong>Phone Number:</strong> {{ Auth::user()->phone }}</p>
@@ -94,7 +94,7 @@
                     </div>
 
                     <div class="mt-6">
-                        <a href="{{ route('booking.add') }}" class="w-full bg-green-600 text-white p-2 rounded hover:bg-green-700 text-center inline-block mb-4">Add Class</a>
+                        <a href="{{ route('booking.create') }}" class="w-full bg-green-600 text-white p-2 rounded hover:bg-green-700 text-center inline-block mb-4">Add Class</a>
                         <form action="{{ route('student.logout') }}" method="POST">
                             @csrf
                             <button type="submit" class="w-full bg-red-600 text-white p-2 rounded hover:bg-red-700">Logout</button>

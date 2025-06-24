@@ -23,10 +23,6 @@ Route::get('/home', function () {
     return view('frontend.home');
 })->name('frontend.home');
 
-Route::get('/booking', function () {
-    return view('frontend.bview');
-})->name('frontend.bview');
-
 // Two-Factor Routes
 //Show 2FA challenge page
 Route::get('/two-factor-challenge', [TwoFactorController::class, 'index'])->name('two-factor.login');
@@ -42,14 +38,14 @@ Route::post('student/logout', [StudentAuthController::class, 'logout'])->name('s
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [BookingController::class, 'index'])->name('student.dashboard');
-    Route::get('/bookings/create', [BookingController::class, 'create'])->name('booking.add');
+    Route::get('/bookings/create', [BookingController::class, 'create'])->name('booking.create');
     Route::post('/bookings', [BookingController::class, 'store'])->name('booking.store');
     Route::delete('/bookings/{booking}', [BookingController::class, 'destroy'])->name('booking.destroy');
 });
 
 Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
     Route::get('dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-    Route::patch('users/{user}/toggle', [AdminController::class, 'toggleUser'])->name('users.toggle');
-    Route::get('users/{user}/bookings', [AdminController::class, 'userBookings'])->name('bookings');
-    Route::delete('users/{user}', [AdminController::class, 'destroyUser'])->name('users.destroy');
+    Route::patch('users/{user_id}/toggle', [AdminController::class, 'toggleUser'])->name('users.toggle');
+    Route::get('users/{user_id}/bookings', [AdminController::class, 'userBookings'])->name('bookings');
+    Route::delete('users/{user_id}', [AdminController::class, 'destroyUser'])->name('users.destroy');
 });
