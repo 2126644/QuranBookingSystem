@@ -1,4 +1,4 @@
-# Quran Booking System
+# Quran Booking System (group: The Jannah Seekers)
 
 ## Name and Matric No
 1.  Nur Atiqah Batrisyia binti Azmi (2123218)
@@ -18,7 +18,43 @@ Online Quran Tutor Registration and Booking System: i-Iqra'
 
 ## Web Application Security Enhancements 
 
-### 1. Vulnerability Report - Based on OWASP ZAP scanning and states the risk and confidence levels of the found vulnerability. 
+### 1. Vulnerability Report - Based on OWASP ZAP scanning and states the risk and confidence levels of the found vulnerability.
+
+🔴 **High-Risk Vulnerabilities**
+**1. Path Traversal**
+**Description:** Allows attackers to access files or directories that are outside the intended web root by using ../, encoded slashes, etc.
+**Risk:** Attackers could potentially read sensitive files or execute commands.
+**Example Affected Endpoint:**
+POST http://localhost/QuranBookingSystem/public/student/login
+
+**2. SQL Injection**
+**Description:** Input such as an email with ' caused a 500 Internal Server Error, which implies poor sanitization and vulnerability to SQL injection.
+**Risk:** Could allow attackers to extract, manipulate, or destroy database contents.
+**Example Affected Endpoint:**
+POST http://localhost/QuranBookingSystem/public/student/register
+
+**🟠 Medium-Risk Vulnerabilities**
+**1. Absence of Anti-CSRF Tokens**
+* Indicates that some forms or actions are missing CSRF tokens.
+
+**2. Content Security Policy (CSP) Header Not Set**
+* Weakens protection against XSS attacks if not properly implemented.
+
+**3. Buffer Overflow**
+* Indicates potential crash or overflow when handling large inputs.
+
+**4. Cross-Domain Misconfiguration**
+* Resources are loaded from domains that could introduce trust issues.
+
+**5. Format String Error**
+* May crash the app or be exploited for memory access.
+
+**6. Missing Anti-clickjacking Header**
+* No X-Frame-Options or Content-Security-Policy to prevent clickjacking.
+
+**7. Vulnerable JavaScript Library**
+* A third-party JS library in use has known vulnerabilities.
+
 ### 2. Web Security Fundamentals (Input Validation) 
 * Implemented in `StudentAuthController`, `BookingController`, and other request handlers.
 * Validates type, length, and format (whitelisting) using Laravel’s validation layer in regex format.
@@ -77,3 +113,4 @@ Online Quran Tutor Registration and Booking System: i-Iqra'
 ## References
 * Laravel Official Documentation: [https://laravel.com/docs/12.x/](https://laravel.com/docs/12.x/)
 * ChatGPT (OpenAI): [https://openai.com/chatgpt](https://openai.com/chatgpt)
+* Sullivan, Bryan; Liu, Vincent. Web Application Security, A Beginner's Guide (Kindle Location 2382). McGraw-Hill Education. Kindle Edition.
