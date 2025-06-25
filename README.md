@@ -5,6 +5,9 @@
 2.  Nur Fatihah Adawiyah binti Rusdi 2126644
 
 ## Introduction of Web Application:
+Online Quran Tutor Registration and Booking System: i-Iqra'
+* The "Online Quran Tutor Registration and Booking System" is a web-application that simplifies the process of enrolling for Quran tutor classes. This platform seeks to streamline student-tutor interactions by offering an efficient, user-friendly booking session management interface. By focusing on key capabilities like registration and booking, the system improves the educational experience by lowering administrative tasks.
+* The system delivers a fully functional, user-friendly website for i-Iqra' Academy. This website will serve as a professional platform to promote the business, facilitate students' registrations and classes bookings, and provide information about the business' team (tutors, etc) and background information (feedbacks, etc).
 
 ## Objective of the Enhancements:
 
@@ -73,5 +76,5 @@
 * No file path injection (no user-defined file path usage).
 
 ## References
-* Laravel Official Documentation: [https://laravel.com/docs/12.x/)](https://laravel.com/docs/12.x/)
+* Laravel Official Documentation: [https://laravel.com/docs/12.x/](https://laravel.com/docs/12.x/)
 * ChatGPT (OpenAI): [https://openai.com/chatgpt](https://openai.com/chatgpt)
