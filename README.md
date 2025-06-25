@@ -1,23 +1,22 @@
 # Quran Booking System
 
-## Name and Matric No:
-1.  Nur Atiqah Batrisyia binti Azmi 2123218
-2.  Nur Fatihah Adawiyah binti Rusdi 2126644
+## Name and Matric No
+1.  Nur Atiqah Batrisyia binti Azmi (2123218)
+2.  Nur Fatihah Adawiyah binti Rusdi (2126644)
 
-## Introduction of Web Application:
+## Introduction of Web Application
 Online Quran Tutor Registration and Booking System: i-Iqra'
 * The "Online Quran Tutor Registration and Booking System" is a web-application that simplifies the process of enrolling for Quran tutor classes. This platform seeks to streamline student-tutor interactions by offering an efficient, user-friendly booking session management interface. By focusing on key capabilities like registration and booking, the system improves the educational experience by lowering administrative tasks.
 * The system delivers a fully functional, user-friendly website for i-Iqra' Academy. This website will serve as a professional platform to promote the business, facilitate students' registrations and classes bookings, and provide information about the business' team (tutors, etc) and background information (feedbacks, etc).
 
-## Objective of the Enhancements:
-
+## Objective of the Enhancements
 * Address known web application vulnerabilities.
 * Integrate robust security mechanisms based on OWASP standards.
 * Protect user data and ensure integrity of the booking process.
 * Implement fine-grained access control and session management.
 * Ensure secure authentication using password policies and 2FA.
 
-## Web Application Security Enhancements: 
+## Web Application Security Enhancements 
 
 ### 1. Vulnerability Report - Based on OWASP ZAP scanning and states the risk and confidence levels of the found vulnerability. 
 ### 2. Web Security Fundamentals (Input Validation) 
