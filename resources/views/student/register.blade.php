@@ -9,7 +9,9 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            height: 100vh;
+            min-height: 100vh; /* Use min-height instead of fixed height */
+        overflow-y: auto;   /* Allow vertical scroll if needed */
+        padding: 1rem;      /* Prevent content from touching screen edges */
         }
     </style>
 </head>
