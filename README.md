@@ -56,7 +56,7 @@ _**Online Quran Tutor Registration and Booking System: i-Iqra'**_
 * Validates type, length, and format (whitelisting) using Laravel’s validation layer in regex format.
 * All user inputs are filtered using `Request::validate()`.
 
-* BookingController:
+* `BookingController`:
 ```bash
 public function store(Request $request)
 {
@@ -71,7 +71,7 @@ public function store(Request $request)
     ]);
   ```
 
-* StudentAuthController:
+* `StudentAuthController`:
 ```bash
 public function login(Request $request)
     {
@@ -102,7 +102,7 @@ public function register(Request $request)
 ### 3. Web Security Fundamentals (Error Handling & Information Disclosure)
 * Laravel default handler used (`Handler.php`) which will only display 500 | SERVER ERROR to users:
 ```bash
-  public function render($request, Throwable $exception): Response
+public function render($request, Throwable $exception): Response
     {
         if (config('app.debug')) {
             return parent::render($request, $exception);
@@ -116,41 +116,35 @@ public function register(Request $request)
 ------------------------------------------------
 ### 4. Authentication (Password Storage) 
 * Password stored using Argon2id with additional manual salting (`hashing.php`, `User.php`).
-* .env:
-```env
-HASH_DRIVER=argon
-
-* hashing.php:
+* `.env`:
 ```bash
-    'default' => env('HASH_DRIVER', 'argon'),    //use the Argon algorithm for hashing (instead of the default bcrypt)
-
-    //just in case want to switch back to Bcrypt
-    //not active unless change the driver to 'bcrypt'.
-    'bcrypt' => [
-        'rounds' => env('BCRYPT_ROUNDS', 10),   
-    ],
-
-    'argon' => [
-        'memory'  => 65536,
-        'threads' => 2,
-        'time'    => 4,     //4 times hashing
-        'type'    => PASSWORD_ARGON2ID,
-    ],
-
-];
+HASH_DRIVER=argon
 ```
-* StudentAuthController:
+
+* `hashing.php`:
+```bash
+'default' => env('HASH_DRIVER', 'argon'),    //use the Argon algorithm for hashing (instead of the default bcrypt)
+
+'argon' => [
+    'memory'  => 65536,
+    'threads' => 2,
+    'time'    => 4,     //4 times hashing
+    'type'    => PASSWORD_ARGON2ID,
+    ],
+```
+
+* `StudentAuthController`:
 ```bash
 $salt = Str::random(16); 
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'salt' => $salt,
-            'password' => Hash::make($request->password . $salt), 
-            'gender' => $request->gender,
-            'age' => $request->age,
-        ]);
+$user = User::create([
+    'name' => $request->name,
+    'email' => $request->email,
+    'salt' => $salt,
+    'password' => Hash::make($request->password . $salt), 
+    'gender' => $request->gender,
+    'age' => $request->age,
+]);
 ```
 ------------------------------------------------
 ### 5. Authentication (Password Policies) 
@@ -168,7 +162,7 @@ protected function passwordRules(): array
     }
 ```
 * Minimum length set to 8, must have mixed characters, at least one number, letter, and symbol while disallow known weak passwords.
-* StudentAuthController:
+* `StudentAuthController`:
 ```bash
 public function register(Request $request)
     {
@@ -191,9 +185,9 @@ public function register(Request $request)
 * Implemented via `TwoFactorController.php`, `TwoFactorCodeMail.php`.
 * One-time codes sent to verified emails using `Mail::to()->send(new TwoFactorCodeMail)`.
 * Code will be expired within 10 minutes.
-* StudentAuthController:
+* `StudentAuthController`:
 ```bash
-// Generate 2FA code and expiry
+    // Generate 2FA code and expiry
     $user->two_factor_code = rand(100000, 999999);
     $user->two_factor_expires_at = now()->addMinutes(10);
     $user->save();
@@ -208,7 +202,7 @@ public function register(Request $request)
     return redirect()->route('two-factor.login');
 ```
 
-* TwoFactorController:
+* `TwoFactorController`:
 ```bash
 class TwoFactorController extends Controller
 {
@@ -271,7 +265,7 @@ class TwoFactorController extends Controller
 }
 ```
 
-* TwoFactorCodeMail:
+* `TwoFactorCodeMail.php`:
 ```bash
 class TwoFactorCodeMail extends Mailable
 {
@@ -302,10 +296,9 @@ class TwoFactorCodeMail extends Mailable
 ### 7. Authentication (Session Management) 
 * Session tokens are regenerated on login and destroyed on logout.
 * StudentAuthController:
-    ```bash
-     public function login(Request $request)
-        {
-    
+```bash
+public function login(Request $request)
+    {
         $key = Str::lower('login:' . $request->email);
         $attemptKey = $key . ':attempts';
         $lockoutKey = $key . ':lockout';
@@ -349,23 +342,23 @@ class TwoFactorCodeMail extends Mailable
         // Passed password check: reset attempts
         cache()->forget($attemptKey);
         cache()->forget($lockoutKey);
-    ```
+```
 
-    ```bash
-    public function logout(Request $request)
-        {
-            Auth::logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken(); // Prevent CSRF reuse
-            return redirect()->route('student.login');
-        }
-    ```
+```bash
+public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken(); // Prevent CSRF reuse
+        return redirect()->route('student.login');
+}
+```
 
 * session.php:
-    ```bash
-    'lifetime' => 15,
-    'expire_on_close' => false,
-    ```
+```bash
+'lifetime' => 15,
+'expire_on_close' => false,
+```
     
 * Cookies configured with `HttpOnly`, `Secure`, and `SameSite` flags.
 ------------------------------------------------
@@ -383,24 +376,24 @@ class TwoFactorCodeMail extends Mailable
   * Add booking
   * Delete booking
 * Enforced in `AdminController`:
-  ```bash
-  // at the top of every admin action check the logged-in user’s role_id. 
-    // if it isn’t 1 (Admin), abort with a 403
-    protected function ensureIsAdmin()
+```bash
+// at the top of every admin action check the logged-in user’s role_id. 
+// if it isn’t 1 (Admin), abort with a 403
+protected function ensureIsAdmin()
     {
         if (Auth::user()->role_id !== 1) {
             abort(403, 'Unauthorized');
         }
     }
 
-    public function dashboard()
+public function dashboard()
     {
         $this->ensureIsAdmin();
         $users = User::all();
         return view('admin.dashboard', compact('users'));
     }
 
-    public function toggleUser($user_id)
+public function toggleUser($user_id)
     {
         $this->ensureIsAdmin();
         $user = User::where('user_id', $user_id)->firstOrFail();
@@ -409,7 +402,7 @@ class TwoFactorCodeMail extends Mailable
         return back();
     }
 
-    public function userBookings($user_id)
+public function userBookings($user_id)
     {
         $this->ensureIsAdmin();
         $user = User::where('user_id', $user_id)->firstOrFail();
@@ -417,7 +410,7 @@ class TwoFactorCodeMail extends Mailable
         return view('admin.bookings', compact('user', 'bookings'));
     }
 
-    public function destroyUser($user_id)
+public function destroyUser($user_id)
     {
         $this->ensureIsAdmin();
         $user = User::where('user_id', $user_id)->firstOrFail();
@@ -426,7 +419,7 @@ class TwoFactorCodeMail extends Mailable
     }
   ```
 
-  BookingController.php:
+* `BookingController.php`:
   ```bash
   public function __construct()
     {
@@ -442,9 +435,9 @@ class TwoFactorCodeMail extends Mailable
     }
   ```
 * User roles scoped in DB and seeded via `RolesTableSeeder.php`.
-  RolesTableSeeder.php:
-  ```bash
-  public function run()
+* `RolesTableSeeder.php`:
+```bash
+public function run()
     {
         DB::table('roles')->insert([
             ['role_id' => 1, 'role_name' => 'Admin', 'permissions' => 'full access'], // full permissions
@@ -452,40 +445,39 @@ class TwoFactorCodeMail extends Mailable
         ]);
     }
   ```
-  DatabaseSeeder.php:
-  ```bash
+* `DatabaseSeeder.php`:
+```bash
   public function run(): void
     {
         $this->call(RolesTableSeeder::class);
     }
-  ```
-  
+```
 ------------------------------------------------
 ### 9. Authorization (Default Permissions)
 * All routes protected via role-check middleware.
-  web.php:
-  ```bash
-  Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', [BookingController::class, 'index'])->name('student.dashboard');
-    Route::get('/bookings/create', [BookingController::class, 'create'])->name('booking.create');
-    Route::post('/bookings', [BookingController::class, 'store'])->name('booking.store');
-    Route::delete('/bookings/{booking}', [BookingController::class, 'destroy'])->name('booking.destroy');
-  });
+* `web.php`:
+```bash
+Route::middleware(['auth'])->group(function () {
+Route::get('/dashboard', [BookingController::class, 'index'])->name('student.dashboard');
+Route::get('/bookings/create', [BookingController::class, 'create'])->name('booking.create');
+Route::post('/bookings', [BookingController::class, 'store'])->name('booking.store');
+Route::delete('/bookings/{booking}', [BookingController::class, 'destroy'])->name('booking.destroy');
+});
 
-    Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
-    Route::get('dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-    Route::patch('users/{user_id}/toggle', [AdminController::class, 'toggleUser'])->name('users.toggle');
-    Route::get('users/{user_id}/bookings', [AdminController::class, 'userBookings'])->name('bookings');
-    Route::delete('users/{user_id}', [AdminController::class, 'destroyUser'])->name('users.destroy');
-    });
-    ```
+Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
+Route::get('dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+Route::patch('users/{user_id}/toggle', [AdminController::class, 'toggleUser'])->name('users.toggle');
+Route::get('users/{user_id}/bookings', [AdminController::class, 'userBookings'])->name('bookings');
+Route::delete('users/{user_id}', [AdminController::class, 'destroyUser'])->name('users.destroy');
+});
+```
 * Least privilege by default using Laravel Policies.
 * Admins and students have scoped abilities.
 * DB `.env` user: `quranbookingsystem_user` has minimal privileges.
 ------------------------------------------------
 ### 10. Browser Security Principles (Cross-Site Scripting (XSS) Prevention)
 * All outputs escaped using Blade (`{{ }}`), no (`{{!! !!}}`) used.
-* Example: dashboard.blade.php
+* Example: `dashboard.blade.php`
   ```bash
   @foreach ($bookings as $booking)
   <tr class="bg-gray-100">
@@ -511,7 +503,7 @@ class TwoFactorCodeMail extends Mailable
 ------------------------------------------------
 ### 11. Database Security Principles (SQL Injection Prevention)
 * All queries use Laravel's Eloquent ORM or parameterized DB queries (`DB::table()->where(...)`).
-* Example: RolesTableSeeder.php
+* Example: `RolesTableSeeder.php`
   ```bash
   public function run()
     {
@@ -525,17 +517,17 @@ class TwoFactorCodeMail extends Mailable
 ------------------------------------------------
 ### 12. Database Security Principles (Database Access Control)
 * Application connects using `.env` credentials with minimum DB privileges.
-``env
+```bash
   DB_CONNECTION=mysql
   DB_HOST=127.0.0.1
   DB_PORT=3306
   DB_DATABASE=quranbookingsystem
   DB_USERNAME=quranbookingsystem_user
   DB_PASSWORD=quranbookingsystem_user20232025
+```
   
 * Minimal privileges for DB user: No DROP, ALTER privileges in production.
   <img width="701" alt="Screenshot 2025-06-26 114808" src="https://github.com/user-attachments/assets/e1347d26-363e-4160-bd23-0a60b6da1ff1" />
-
 ------------------------------------------------
 ### 13. File Security Principles (File Access Control)
 * Blade files (`login.blade.php`, `register.blade.php`, `dashboard.blade.php`, etc.) are not publicly accessible.
