@@ -34,20 +34,14 @@ _**Online Quran Tutor Registration and Booking System: i-Iqra'**_
 
   
 **🟠 Medium-Risk Vulnerabilities**
-
-**1. Absence of Anti-CSRF Tokens:** Indicates that some forms or actions are missing CSRF tokens.
  
-**2. Content Security Policy (CSP) Header Not Set:** Weakens protection against XSS attacks if not properly implemented.
- 
-**3. Buffer Overflow:** Indicates potential crash or overflow when handling large inputs.
- 
-**4. Cross-Domain Misconfiguration:** Resources are loaded from domains that could introduce trust issues.
- 
-**5. Format String Error:** May crash the app or be exploited for memory access.
- 
-**6. Missing Anti-clickjacking Header:** No X-Frame-Options or Content-Security-Policy to prevent clickjacking.
- 
-**7. Vulnerable JavaScript Library:** A third-party JS library in use has known vulnerabilities.
+- **Absence of Anti-CSRF Tokens:** Indicates that some forms or actions are missing CSRF tokens.
+- **Content Security Policy (CSP) Header Not Set:** Weakens protection against XSS attacks if not properly implemented.
+- **Buffer Overflow:** Indicates potential crash or overflow when handling large inputs.
+- **Cross-Domain Misconfiguration:** Resources are loaded from domains that could introduce trust issues.
+- **Format String Error:** May crash the app or be exploited for memory access.
+- **Missing Anti-clickjacking Header:** No X-Frame-Options or Content-Security-Policy to prevent clickjacking.
+- **Vulnerable JavaScript Library:** A third-party JS library in use has known vulnerabilities.
 
 ------------------------------------------------
 
