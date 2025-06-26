@@ -42,9 +42,7 @@ _**Online Quran Tutor Registration and Booking System: i-Iqra'**_
 - **Format String Error:** May crash the app or be exploited for memory access.
 - **Missing Anti-clickjacking Header:** No X-Frame-Options or Content-Security-Policy to prevent clickjacking.
 - **Vulnerable JavaScript Library:** A third-party JS library in use has known vulnerabilities.
-
 ------------------------------------------------
-
 ### 2. Web Security Fundamentals (Input Validation) 
 * Implemented in `StudentAuthController`, `BookingController`, and other request handlers.
 * Validates type, length, and format (whitelisting) using Laravel’s validation layer in regex format.
@@ -289,7 +287,7 @@ class TwoFactorCodeMail extends Mailable
 ------------------------------------------------
 ### 7. Authentication (Session Management) 
 * Session tokens are regenerated on login and destroyed on logout.
-* StudentAuthController:
+* `StudentAuthController`:
 ```bash
 public function login(Request $request)
     {
@@ -354,7 +352,40 @@ public function logout(Request $request)
 'expire_on_close' => false,
 ```
     
-* Cookies configured with `HttpOnly`, `Secure`, and `SameSite` flags.
+* Cookies configured with `HttpOnly`, `Secure`, and `SameSite` flags by default in `session.php`:
+```bash
+'http_only' => env('SESSION_HTTP_ONLY', true),
+'secure' => env('SESSION_SECURE_COOKIE'),
+'same_site' => env('SESSION_SAME_SITE', 'lax'),
+```
+
+* Users directed to login page after session ends:
+`FortifyServiceProvider.php`
+```bash
+public function boot(): void
+    {
+        Fortify::createUsersUsing(CreateNewUser::class);
+        Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
+        Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
+        Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
+
+        Fortify::loginView(function () {
+        return view('student.login');
+        });
+```
+
+`auth.php`:
+```bash
+'defaults' => [
+        'guard' =>  'web',
+        'passwords' => 'users',
+    ],
+
+'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
+    'redirects' => [
+    'login' => 'student.login',
+    ]
+```
 ------------------------------------------------
 ### 8. Authorization (RBAC/Role-Based Access Control)
 * Role definitions in `Role.php`, `User.php`.
@@ -495,7 +526,67 @@ Route::delete('users/{user_id}', [AdminController::class, 'destroyUser'])->name(
   ```
 * User-generated input never rendered as raw HTML.
 ------------------------------------------------
-### 11. Database Security Principles (SQL Injection Prevention)
+### 11. Web Security Fundamentals (Cross-Site Request Forgery (CSRF) Protection)
+* All POST, PUT, PATCH, and DELETE forms include the @csrf directive in Blade templates.
+* Example: `add.blade.php`
+```bash
+<form class="custom-form booking-form" action="{{ route('booking.store') }}" method="POST">
+@csrf
+    <div class="text-center mb-4 pb-lg-2">
+    <em class="text-white">Fill out the booking form</em>
+    <h2 class="text-white">Book a class</h2>
+    </div>
+```
+* `student\dashboard.blade.php`:
+```bash
+<form action="{{ route('booking.destroy', $booking->booking_id) }}" method="POST">
+@csrf
+@method('DELETE')
+    <button type="submit" class="bg-red-600 text-white p-2 rounded hover:bg-red-700" action="{{ route('booking.destroy', $booking->booking_id) }}" method="POST">Drop</button>
+</form>
+```
+
+* `admin\dashboard.blade.php`:
+```bash
+<form method="POST" action="{{ route('admin.users.toggle', $u->user_id) }}">
+@csrf
+@method('PATCH')
+<div class="form check form-switch">
+    <input class="form-check-input" type="checkbox" name="status" id="active-switch-{{ $u->user_id }}" onchange="this.form.submit()"
+    {{ $u->status ? 'checked' : '' }}>
+<label class="form-check-label" for="active-switch-{{ $u->user_id }}">
+    {{ $u->status ? 'Active' : 'Inactive' }}
+</label>
+</div>
+</form>
+```
+
+* Laravel automatically verifies the CSRF token on each request through the VerifyCsrfToken middleware.
+* `Kernel.php`:
+```bash
+use Illuminate\Foundation\Http\Kernel as HttpKernel;
+
+// All middleware used directly from Laravel framework namespaces
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
+
+protected $middlewareGroups = [
+        'web' => [
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+            StartSession::class,
+            AuthenticateSession::class,
+            ShareErrorsFromSession::class,
+            VerifyCsrfToken::class, // CSRF protection middleware
+            SubstituteBindings::class,
+        ],
+```
+
+* Meta tag is included in the layout file `app.blade.php`:
+```bash
+<meta name="csrf-token" content="{{ csrf_token() }}">
+```
+------------------------------------------------
+### 12. Database Security Principles (SQL Injection Prevention)
 * All queries use Laravel's Eloquent ORM or parameterized DB queries (`DB::table()->where(...)`).
 * Example: `RolesTableSeeder.php`
   ```bash
@@ -509,7 +600,7 @@ Route::delete('users/{user_id}', [AdminController::class, 'destroyUser'])->name(
   ```
 * No raw SQL concatenation used.
 ------------------------------------------------
-### 12. Database Security Principles (Database Access Control)
+### 13. Database Security Principles (Database Access Control)
 * Application connects using `.env` credentials with minimum DB privileges.
 ```bash
   DB_CONNECTION=mysql
@@ -523,7 +614,7 @@ Route::delete('users/{user_id}', [AdminController::class, 'destroyUser'])->name(
 * Minimal privileges for DB user: No DROP, ALTER privileges in production.
   <img width="701" alt="Screenshot 2025-06-26 114808" src="https://github.com/user-attachments/assets/e1347d26-363e-4160-bd23-0a60b6da1ff1" />
 ------------------------------------------------
-### 13. File Security Principles (File Access Control)
+### 14. File Security Principles (File Access Control)
 * Blade files (`login.blade.php`, `register.blade.php`, `dashboard.blade.php`, etc.) are not publicly accessible.
 * File paths never include direct user input.
 * No file path injection (no user-defined file path usage).
