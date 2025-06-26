@@ -174,28 +174,6 @@ public function register(Request $request)
             'age' => ['required','integer', 'min:1', 'max:100'],
         ]);
 ```
-* Account will locked out after 3rd attempt for 60 seconds.
-
-```bash
-    $key = Str::lower('login:' . $request->email);
-    $attemptKey = $key . ':attempts';
-    $lockoutKey = $key . ':lockout';
-    $maxAttempts = 3;
-    $lockoutSeconds = 60;
-
-    // Check if user is locked out
-    if (cache()->has($lockoutKey)) {
-        $remaining = cache()->get($lockoutKey) - time();
-        if ($remaining > 0) {
-            return back()->withErrors([
-                'email' => "Too many login attempts. Please try again in {$remaining} seconds.",
-            ]);
-        } else {
-            cache()->forget($lockoutKey);
-            cache()->forget($attemptKey);
-        }
-    }
-```
 ------------------------------------------------
 ### 6. Authentication (2 Factor Authentication) 
 * Implemented via `TwoFactorController.php`, `TwoFactorCodeMail.php`.
