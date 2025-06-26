@@ -1,4 +1,4 @@
-# Quran Booking System (group: The Jannah Seekers)
+# Quran Booking System (Group: The Jannah Seekers)
 
 ## Name and Matric No
 1.  Nur Atiqah Batrisyia binti Azmi (2123218)
@@ -56,9 +56,9 @@ _**Online Quran Tutor Registration and Booking System: i-Iqra'**_
 * Validates type, length, and format (whitelisting) using Laravel’s validation layer in regex format.
 * All user inputs are filtered using `Request::validate()`.
 
-Booking Controller:
+* BookingController:
 ```bash
-* public function store(Request $request)
+public function store(Request $request)
 {
     // Validate the incoming request data
     $request->validate([
@@ -71,7 +71,7 @@ Booking Controller:
     ]);
   ```
 
-StudentAuthController:
+* StudentAuthController:
 ```bash
 public function login(Request $request)
     {
@@ -80,6 +80,7 @@ public function login(Request $request)
             'password' => ['required', 'string', 'min:8'],
         ]);
 ```
+
 ```bash
 public function register(Request $request)
     {
@@ -99,8 +100,8 @@ public function register(Request $request)
 ```
 ------------------------------------------------
 ### 3. Web Security Fundamentals (Error Handling & Information Disclosure)
-* Laravel default handler used (`Handler.php`) which will only display 500 | SERVER ERROR to users.
-  ```bash
+* Laravel default handler used (`Handler.php`) which will only display 500 | SERVER ERROR to users:
+```bash
   public function render($request, Throwable $exception): Response
     {
         if (config('app.debug')) {
@@ -110,14 +111,16 @@ public function register(Request $request)
         // In production, show generic error page
         return response()->view('errors.generic', [], 500);
     }
-  ```
+```
 * Internal logs stored in `storage/logs/laravel.log`; no sensitive error output shown to users.
 ------------------------------------------------
 ### 4. Authentication (Password Storage) 
 * Password stored using Argon2id with additional manual salting (`hashing.php`, `User.php`).
-* `.env: HASH_DRIVER=argon`.
+* .env:
+```env
+HASH_DRIVER=argon
 
-hashing.php:
+* hashing.php:
 ```bash
     'default' => env('HASH_DRIVER', 'argon'),    //use the Argon algorithm for hashing (instead of the default bcrypt)
 
@@ -136,8 +139,7 @@ hashing.php:
 
 ];
 ```
-* `Hash::make($salt . $password)`.
-StudentAuthController:
+* StudentAuthController:
 ```bash
 $salt = Str::random(16); 
 
@@ -145,14 +147,14 @@ $salt = Str::random(16);
             'name' => $request->name,
             'email' => $request->email,
             'salt' => $salt,
-            'password' => Hash::make($request->password . $salt),   //append the salt to the password before hashing in registration
+            'password' => Hash::make($request->password . $salt), 
             'gender' => $request->gender,
             'age' => $request->age,
         ]);
 ```
 ------------------------------------------------
 ### 5. Authentication (Password Policies) 
-* Enforced in `PasswordValidationRules.php`.
+* Enforced in `PasswordValidationRules.php`:
 ```bash
 protected function passwordRules(): array
     {
@@ -166,6 +168,7 @@ protected function passwordRules(): array
     }
 ```
 * Minimum length set to 8, must have mixed characters, at least one number, letter, and symbol while disallow known weak passwords.
+* StudentAuthController:
 ```bash
 public function register(Request $request)
     {
@@ -188,6 +191,7 @@ public function register(Request $request)
 * Implemented via `TwoFactorController.php`, `TwoFactorCodeMail.php`.
 * One-time codes sent to verified emails using `Mail::to()->send(new TwoFactorCodeMail)`.
 * Code will be expired within 10 minutes.
+* StudentAuthController:
 ```bash
 // Generate 2FA code and expiry
     $user->two_factor_code = rand(100000, 999999);
@@ -203,78 +207,182 @@ public function register(Request $request)
     // Redirect to 2FA challenge page
     return redirect()->route('two-factor.login');
 ```
+
+* TwoFactorController:
+```bash
+class TwoFactorController extends Controller
+{
+    //Display the 2FA code input form
+    public function index()
+    {
+        //User logged out and directed to 
+        return view('auth.two-factor-challenge');
+    }
+
+    //Handle code submission
+    public function store(Request $request)
+    {
+        //Validates 2FA code
+        $request->validate([
+            'two_factor_code' => ['required', 'digits:6'],
+        ]);
+
+        //Identify user from session (only accepts user stored in session)
+        //User must already be partially verified
+        $userId = $request->session()->get('login.id');
+
+        if (!$userId) {
+            return redirect()->route('login')->withErrors(['email' => 'Your session has expired. Please login again.']);
+        }
+
+        $user = User::find($userId);
+
+        if ($user->two_factor_code !== $request->two_factor_code) {
+            return back()->withErrors(['two_factor_code' => 'The code is incorrect.']);
+        }
+
+        if (Carbon::now()->greaterThan($user->two_factor_expires_at)) {
+            return back()->withErrors(['two_factor_code' => 'The code has expired.']);
+        }
+
+        //If valid; 
+
+        //Clear used 2FA code in database
+        $user->two_factor_code = null;
+        $user->two_factor_expires_at = null;
+        $user->save();
+
+        //Logs user in
+        Auth::login($user);
+
+        //Cleans login.id after successful login
+        $request->session()->forget('login.id');
+        $request->session()->regenerate();
+
+        // 7) Finally, send them where they belong
+        if (Auth::user()->role_id === 1) {
+            // Admin
+            return redirect()->route('frontend.home');
+        }
+
+        // Student (or any non-admin)
+        return redirect()->intended('/home');
+    }
+}
+```
+
+* TwoFactorCodeMail:
+```bash
+class TwoFactorCodeMail extends Mailable
+{
+    use Queueable, SerializesModels;
+
+    public $user;
+
+    /**
+     * Create a new message instance.
+     */
+    public function __construct(User $user)
+    {
+        $this->user = $user;
+    }
+
+    /**
+     * Build the message.
+     */
+    public function build()
+    {
+        return $this->subject('Your Two-Factor Code')
+                    ->view('emails.two-factor-code')
+                    ->with(['code'=> $this->user->two_factor_code]);
+    }
+}
+```
 ------------------------------------------------
 ### 7. Authentication (Session Management) 
 * Session tokens are regenerated on login and destroyed on logout.
-```bash
- public function login(Request $request)
-    {
-
-    $key = Str::lower('login:' . $request->email);
-    $attemptKey = $key . ':attempts';
-    $lockoutKey = $key . ':lockout';
-    $maxAttempts = 3;
-    $lockoutSeconds = 60;
-
-    // Check if user is locked out
-    if (cache()->has($lockoutKey)) {
-        $remaining = cache()->get($lockoutKey) - time();
-        if ($remaining > 0) {
-            return back()->withErrors([
-                'email' => "Too many login attempts. Please try again in {$remaining} seconds.",
-            ]);
-        } else {
-            cache()->forget($lockoutKey);
-            cache()->forget($attemptKey);
+* StudentAuthController:
+    ```bash
+     public function login(Request $request)
+        {
+    
+        $key = Str::lower('login:' . $request->email);
+        $attemptKey = $key . ':attempts';
+        $lockoutKey = $key . ':lockout';
+        $maxAttempts = 3;
+        $lockoutSeconds = 60;
+    
+        // Check if user is locked out
+        if (cache()->has($lockoutKey)) {
+            $remaining = cache()->get($lockoutKey) - time();
+            if ($remaining > 0) {
+                return back()->withErrors([
+                    'email' => "Too many login attempts. Please try again in {$remaining} seconds.",
+                ]);
+            } else {
+                cache()->forget($lockoutKey);
+                cache()->forget($attemptKey);
+            }
         }
-    }
-
-    $user = User::where('email', $request->email)->first();
-
-    // Validate user existence and password
-    if (!$user || !Hash::check($request->password . $user->salt, $user->password)) { //appending the stored salt before checking
-        // Failed login attempt
-        $attempts = cache()->get($attemptKey, 0) + 1;
-        cache()->put($attemptKey, $attempts, $lockoutSeconds);
-
-        if ($attempts >= $maxAttempts) {
-            $lockUntil = time() + $lockoutSeconds;
-            cache()->put($lockoutKey, $lockUntil, $lockoutSeconds);
+    
+        $user = User::where('email', $request->email)->first();
+    
+        // Validate user existence and password
+        if (!$user || !Hash::check($request->password . $user->salt, $user->password)) { //appending the stored salt before checking
+            // Failed login attempt
+            $attempts = cache()->get($attemptKey, 0) + 1;
+            cache()->put($attemptKey, $attempts, $lockoutSeconds);
+    
+            if ($attempts >= $maxAttempts) {
+                $lockUntil = time() + $lockoutSeconds;
+                cache()->put($lockoutKey, $lockUntil, $lockoutSeconds);
+                return back()->withErrors([
+                    'email' => "Too many login attempts. Please try again in {$lockoutSeconds} seconds.",
+                ]);
+            }
+    
             return back()->withErrors([
-                'email' => "Too many login attempts. Please try again in {$lockoutSeconds} seconds.",
+                'email' => "Invalid credentials. You have " . ($maxAttempts - $attempts) . " attempt(s) left.",
             ]);
         }
+    
+        // Passed password check: reset attempts
+        cache()->forget($attemptKey);
+        cache()->forget($lockoutKey);
+    ```
 
-        return back()->withErrors([
-            'email' => "Invalid credentials. You have " . ($maxAttempts - $attempts) . " attempt(s) left.",
-        ]);
-    }
+    ```bash
+    public function logout(Request $request)
+        {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken(); // Prevent CSRF reuse
+            return redirect()->route('student.login');
+        }
+    ```
 
-    // Passed password check: reset attempts
-    cache()->forget($attemptKey);
-    cache()->forget($lockoutKey);
-```
-
-```bash
-public function logout(Request $request)
-    {
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken(); // Prevent CSRF reuse
-        return redirect()->route('student.login');
-    }
-```
-
-session.php:
-```bash
-'lifetime' => 15,
-'expire_on_close' => false,
-```
+* session.php:
+    ```bash
+    'lifetime' => 15,
+    'expire_on_close' => false,
+    ```
+    
 * Cookies configured with `HttpOnly`, `Secure`, and `SameSite` flags.
 ------------------------------------------------
 ### 8. Authorization (RBAC/Role-Based Access Control)
 * Role definitions in `Role.php`, `User.php`.
-* Enforced in `AdminController`, `StudentAuthController`.
+* Admins can:
+  * View all users (with user's information)
+  * All bookings
+  * Delete any booking
+  * Inactivate/activate any user
+  * Delete any user
+  * Add booking
+  * Delete booking
+* Users can:
+  * Add booking
+  * Delete booking
+* Enforced in `AdminController`:
   ```bash
   // at the top of every admin action check the logged-in user’s role_id. 
     // if it isn’t 1 (Admin), abort with a 403
@@ -318,7 +426,7 @@ session.php:
     }
   ```
 
-  Booking Controller:
+  BookingController.php:
   ```bash
   public function __construct()
     {
@@ -334,6 +442,7 @@ session.php:
     }
   ```
 * User roles scoped in DB and seeded via `RolesTableSeeder.php`.
+  RolesTableSeeder.php:
   ```bash
   public function run()
     {
@@ -343,6 +452,7 @@ session.php:
         ]);
     }
   ```
+  DatabaseSeeder.php:
   ```bash
   public function run(): void
     {
@@ -353,6 +463,7 @@ session.php:
 ------------------------------------------------
 ### 9. Authorization (Default Permissions)
 * All routes protected via role-check middleware.
+  web.php:
   ```bash
   Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [BookingController::class, 'index'])->name('student.dashboard');
@@ -421,7 +532,7 @@ session.php:
   DB_DATABASE=quranbookingsystem
   DB_USERNAME=quranbookingsystem_user
   DB_PASSWORD=quranbookingsystem_user20232025
-  ```
+  
 * Minimal privileges for DB user: No DROP, ALTER privileges in production.
   <img width="701" alt="Screenshot 2025-06-26 114808" src="https://github.com/user-attachments/assets/e1347d26-363e-4160-bd23-0a60b6da1ff1" />
 
